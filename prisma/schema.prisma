@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String
+  email String
+  password String
+  idhash String
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  registers WorkRegister[]
+  roles RoleUser[]
+
+  @@map("users")
+}
+
+model RoleUser {
+  id String @id @default(uuid())
+  role Role @default(EMPLOYEE)
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  user User @relation(fields: [id_user], references: [id])
+  id_user String
+
+  @@map("role_user")
+}
+
+enum Role {
+  EMPLOYER // empregador
+  EMPLOYEE // empregado
+}
+
+model WorkRegister {
+  id String @id @default(uuid())
+  register DateTime @default(now()) @db.Timestamptz(3)
+  id_employer String // idhash
+  
+  created_at DateTime? @default(now()) @db.Timestamptz(3)
+  updated_at DateTime? @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [id_user], references: [id])
+  id_user String
+
+  @@map("work_register")
+}
